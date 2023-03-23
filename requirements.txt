@@ -1,0 +1,7 @@
+dash
+pandas
+pydantic
+python-dotenv
+dash_bootstrap_components
+requests
+flask_caching

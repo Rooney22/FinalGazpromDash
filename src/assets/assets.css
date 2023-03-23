@@ -1,0 +1,80 @@
+#sidebar {
+  text-align: center;
+  padding: 2rem 1rem;
+  background-color: #f8f9fa;
+}
+
+#sidebar h2 {
+  text-align: left;
+  margin-bottom: 0;
+}
+#blurb {
+  display: none;
+}
+
+#sidebar-toggle {
+  display: none;
+}
+
+#collapse *:first-child {
+  margin-top: 1rem;
+}
+
+.navbar-toggler-icon {
+  background-image: url("data:image/svg+xml,%3csvg viewBox='0 0 30 30' xmlns='http://www.w3.org/2000/svg'%3e%3cpath stroke='rgba(0, 0, 0, 0.5)' stroke-width='2' stroke-linecap='round' stroke-miterlimit='10' d='M4 7h22M4 15h22M4 23h22'/%3e%3c/svg%3e");
+}
+
+@media (min-width: 48em) {
+  #sidebar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    width: 20rem;
+    text-align: left;
+    transition: margin 0.3s ease-in-out, padding 0.3s ease-in-out;
+  }
+
+  #sidebar-toggle {
+    display: inline-block;
+    position: relative;
+    top: 0;
+    transition: top 0.3s ease-in-out;
+  }
+
+  #sidebar.collapsed {
+    margin-left: -15.5rem;
+    padding-right: 0.5rem;
+  }
+
+  #sidebar.collapsed #sidebar-toggle {
+    top: -2rem;
+  }
+
+  #sidebar.collapsed ~ #page-content {
+    margin-left: 6.5rem;
+  }
+
+  #sidebar.collapsed > *:not(:first-child) {
+    margin-left: -6rem;
+    margin-right: 6rem;
+  }
+
+  #blurb {
+    display: block;
+  }
+
+  #navbar-toggle {
+    display: none;
+  }
+
+  #collapse {
+    display: block;
+  }
+
+  #page-content {
+    margin-left: 22rem;
+    margin-right: 2rem;
+    transition: margin-left 0.3s ease-in-out;
+  }
+}
