@@ -26,17 +26,18 @@ import base64
     State('jwttoken', 'data')
 )
 def download_data(n_clicks, jwttoken):
-    url =  url = f"{settings.back_url}methods/download"
+    url = f"{settings.back_url}methods/download"
     if n_clicks:
         response = requests.post(url, headers={'Authorization': f'Bearer {jwttoken}'})
         if response.status_code == 200:
             data = io.BytesIO(response.content)
             df = pd.read_csv(data)
-            return (df.to_dict('records'), 'Файл скачан')
+            return df.to_dict('records'), 'Файл скачан'
         elif response.status_code == 401:
-            return (None, 'ошибка авторизации')
-    else:
-        return (None, '')
+            return None, 'ошибка авторизации'
+        return 'Error: ' + response.text
+    return None, None
+
 
 @app.callback(
     Output('tab-content', 'children'),
@@ -51,15 +52,19 @@ def tab_visualization(tab, df_dict):
         return dcc.Graph(figure=px.box(df, x="Usage_kWh"))
     elif tab == 'pie':
         df = pd.DataFrame(df_dict)
-        df_group = df.groupby('Day_of_week',)['Usage_kWh'].mean().reset_index()
+        df_group = df.groupby('Day_of_week')['Usage_kWh'].mean().reset_index()
         return dcc.Graph(figure=px.pie(df_group, values='Usage_kWh', names='Day_of_week'))
+    elif tab == 'histo':
+        df = pd.DataFrame(df_dict)
+        df_group = df.groupby('Load_Type')['Usage_kWh'].mean().reset_index()
+        return dcc.Graph(figure=px.histogram(df_group, x="Usage_kWh", y='Load_Type', labels={'x': 'mean Usage_kWh', 'y':'Load_Type'}))
 
 
 @app.callback([Output('output-dataP', 'children'),
                Output('output-dataP-file','data')],
               Input('upload-dataP', 'contents'),
               State('jwttoken', 'data'))
-def dataProcessing(contents, jwttoken):
+def data_processing(contents, jwttoken):
     if contents is not None:
         url = f"{settings.back_url}methods/dataProcessing"
         content_type, content_string = contents.split(',')
@@ -69,11 +74,9 @@ def dataProcessing(contents, jwttoken):
                                  headers={'Authorization': f'Bearer {jwttoken}'})
         if response.status_code == 200:
             df = pd.read_csv(io.BytesIO(response.content))
-            return ('Успешное выполнение', dcc.send_data_frame(df.to_csv, "dataProcessed.csv"))
-        else:
-            return ('Error: ' + response.text, None)
-    else:
-        return (None, None)
+            return 'Успешное выполнение', dcc.send_data_frame(df.to_csv, "dataProcessed.csv")
+        return 'Error: ' + response.text, None
+    return None, None
 
 
 @app.callback([Output('output-predict', 'children'),
@@ -90,11 +93,9 @@ def predict(contents, jwttoken):
                                  headers={'Authorization': f'Bearer {jwttoken}'})
         if response.status_code == 200:
             df = pd.read_csv(io.BytesIO(response.content))
-            return ('Успешное выполнение', dcc.send_data_frame(df.to_csv, "predicted.csv"))
-        else:
-            return ('Error: ' + response.text, None)
-    else:
-        return (None, None)
+            return 'Успешное выполнение', dcc.send_data_frame(df.to_csv, "predicted.csv")
+        return 'Error: ' + response.text, None
+    return None, None
 
 
 @app.callback(Output('output-fit', 'children'),
@@ -110,5 +111,4 @@ def predict(contents, jwttoken):
                                  headers={'Authorization': f'Bearer {jwttoken}'})
         if response.status_code == 200:
             return 'Модель успешно обучена'
-        else:
-            return 'Error: ' + response.text
+        return 'Error: ' + response.text

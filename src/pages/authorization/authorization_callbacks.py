@@ -24,8 +24,6 @@ def authorize(n_clicks, username, password):
         data = {'username': username, 'password': password}
         response = requests.post(url, data=data)
         if response.status_code == 200:
-            return ("Вы авторизованы", response.json()['access_token'])
-        else:
-            return ('Не удалось авторизоваться', '')
-    else:
-        return ('','')
+            return "Вы авторизованы", response.json()['access_token']
+        return 'Не удалось авторизоваться', None
+    return None, None
